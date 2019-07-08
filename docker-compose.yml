@@ -7,9 +7,9 @@ services:
     ports:
       - "8888:80"
     links:
-      - speedtest_db:mysql
+      - speedtest_db:db
     environment:
-      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: examplepass
     # Should only be declared if you have a custom configuration. 404 errors thrown if misconfigured
     volumes:
       - .:/var/www/html
@@ -18,9 +18,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: examplepass
   phpmyadmin:
-    image: corbinu/docker-phpmyadmin
+    image: phpmyadmin/phpmyadmin
     links:
-      - speedtest_db:mysql
+      - speedtest_db:db
     ports:
       - "8181:80"
     environment:

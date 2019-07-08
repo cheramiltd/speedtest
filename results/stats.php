@@ -9,7 +9,7 @@ header('Pragma: no-cache');
 <!DOCTYPE html>
 <html>
 <head>
-<title>HTML5 Speedtest - Stats</title>
+<title>Uturn Network Performance Test - Stats</title>
 <style type="text/css">
 	html,body{
 		margin:0;
@@ -18,7 +18,7 @@ header('Pragma: no-cache');
 		width:100%; min-height:100%;
 	}
 	html{
-		background-color: hsl(198,72%,35%);
+		background-color: red;
 		font-family: "Segoe UI","Roboto",sans-serif;
 	}
 	body{
