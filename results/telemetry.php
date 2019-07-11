@@ -11,6 +11,9 @@ $dl=($_POST["dl"]);
 $ul=($_POST["ul"]);
 $ping=($_POST["ping"]);
 $jitter=($_POST["jitter"]);
+$address=($_POST["address"]);
+$longitude=($_POST["longitude"]);
+$lat=($_POST["lat"]);
 $log=($_POST["log"]);
 
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, s-maxage=0');
@@ -18,8 +21,9 @@ header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
 if($db_type=="mysql"){
+    echo $longitude;
     $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename) or die("1");
-    $stmt = $conn->prepare("INSERT INTO speedtest_users (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log) VALUES (?,?,?,?,?,?,?,?,?,?)") or die("2");
+    $stmt = $conn->prepare("INSERT INTO speedtest_users (`ip`,`ispinfo`,`extra`,`ua`,`lang`,`dl`,`ul`,`ping`,`jitter`,`log`) VALUES (?,?,?,?,?,?,?,?,?,?)") or die("2");
     $stmt->bind_param("ssssssssss",$ip,$ispinfo,$extra,$ua,$lang,$dl,$ul,$ping,$jitter,$log) or die("3");
 	$stmt->execute() or die("4");
     $stmt->close() or die("5");

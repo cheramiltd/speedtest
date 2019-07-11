@@ -11,6 +11,9 @@ var dlStatus = ""; // download speed in megabit/s with 2 decimal digits
 var ulStatus = ""; // upload speed in megabit/s with 2 decimal digits
 var pingStatus = ""; // ping in milliseconds with 2 decimal digits
 var jitterStatus = ""; // jitter in milliseconds with 2 decimal digits
+var address = "";  // Geocoded address from nominatum
+var longitude  = ""; // Browser reported longitude
+var latitude = "";  // Browswer reported latitude 
 var clientIp = ""; // client's IP address as reported by getIP.php
 var dlProgress = 0; //progress of download test 0-1
 var ulProgress = 0; //progress of upload test 0-1
@@ -182,7 +185,7 @@ this.addEventListener("message", function(e) {
 		var runNextTest = function() {
 			if (testState == 5) return;
 			if (test_pointer >= settings.test_order.length) {
-				//test is finished
+				//test is finished			
 				if (settings.telemetry_level > 0)
 					sendTelemetry(function(id) {
 						testState = 4;
@@ -680,6 +683,30 @@ function pingTest(done) {
 	}.bind(this);
 	doPing(); // start first ping
 }
+// Get GPS
+function getLocation() {
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(savePosition);
+	} else {
+		console.log("Geolocation is not supported by this browser.");
+	}
+}
+
+function savePosition(position) {
+	longitude = position.coords.longitude;
+	latitude = position.coords.latitude;
+	simpleReverseGeocoding(longitude, latitude);
+}
+
+// Get Address information 
+function simpleReverseGeocoding(lon, lat) {
+	fetch('http://nominatim.openstreetmap.org/reverse?format=json&lon=' + lon + '&lat=' + lat).then(function (response) {
+		return response.json();
+	}).then(function (json) {
+		address = json.display_name;
+	})
+}
+
 // telemetry
 function sendTelemetry(done) {
 	if (settings.telemetry_level < 1) return;
@@ -708,6 +735,13 @@ function sendTelemetry(done) {
 		processedString: clientIp,
 		rawIspInfo: typeof ispInfo === "object" ? ispInfo : ""
 	};
+	// Lets get the GPS and address
+	try {
+		getLocation();
+	} catch (e) {
+		console.log(e);
+	}
+
 	try {
 		var fd = new FormData();
 		fd.append("ispinfo", JSON.stringify(telemetryIspInfo));
@@ -715,8 +749,12 @@ function sendTelemetry(done) {
 		fd.append("ul", ulStatus);
 		fd.append("ping", pingStatus);
 		fd.append("jitter", jitterStatus);
+		fd.append("address", address);
+		fd.append("longitude", longitude);
+		fd.append("lat", latitude);
 		fd.append("log", settings.telemetry_level > 1 ? log : "");
 		fd.append("extra", settings.telemetry_extra);
+		console.log(fd);
 		xhr.send(fd);
 	} catch (ex) {
 		var postData = "extra=" + encodeURIComponent(settings.telemetry_extra) + "&ispinfo=" + encodeURIComponent(JSON.stringify(telemetryIspInfo)) + "&dl=" + encodeURIComponent(dlStatus) + "&ul=" + encodeURIComponent(ulStatus) + "&ping=" + encodeURIComponent(pingStatus) + "&jitter=" + encodeURIComponent(jitterStatus) + "&log=" + encodeURIComponent(settings.telemetry_level > 1 ? log : "");

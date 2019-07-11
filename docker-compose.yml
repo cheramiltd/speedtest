@@ -9,6 +9,7 @@ services:
     links:
       - speedtest_db:db
     environment:
+      MYSQL_USERNAME: root
       MYSQL_ROOT_PASSWORD: examplepass
     # Should only be declared if you have a custom configuration. 404 errors thrown if misconfigured
     volumes:
